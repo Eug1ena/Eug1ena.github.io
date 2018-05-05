@@ -1,0 +1,76 @@
+body {
+	font-family: 'Lucida Grande','TsukuARdGothic-Regular','ヒラギノ丸ゴ ProN','Hiragino Maru Gothic ProN',sans-serif;
+	text-align: center;
+}
+
+.problem p:not(.problem_title){
+	text-align: left;
+	margin-left : 20px;
+}
+
+.problem li:not(.problem_title){
+	text-align: left;
+}
+
+.problem .small_task{
+	margin-left : 20px;
+}
+
+.problem .problem_title{
+	text-align: left;
+	font-size: 30px;
+}
+
+.problem h4{
+	text-align: left;
+	font-size: 25px;
+	margin-left : 20px;
+}
+
+div:not(.problem) {
+	background-color: #cfd;
+	position: absolute;
+	top: 100px;
+	left: 200px;
+}
+
+pre {
+	font-size: 20px;
+	text-align: left;
+	font-family: "Courier", sans-serif;
+}
+
+.normal_div {
+	width: 1200px;
+}
+
+.question_div {
+	width: 1500px;
+}
+
+.problem_div {
+	width: 1500px;
+}
+
+p:not(.title):not(.back_button), li:not(.title) {
+	font-size: 20px;
+}
+
+.title {
+	font-size: 40px;
+}
+
+.problem {
+	margin-left : 150px;
+	margin-right : 100px;
+	margin-top: 60px;
+	margin-bottom: 200px;
+}
+
+.back_button {
+	font-size: 30px;
+	margin-right : 200px;
+	text-align: right;
+	margin-bottom: 100px;
+	color: #45d;
+}
