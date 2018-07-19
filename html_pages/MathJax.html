@@ -31,7 +31,9 @@
         <span>font size: <input id="font_size" style="background-color: #9e9; font-size: 20px; border: solid #afa; width: 100px; height: 30px; font-family: sans-serif;" value="20">px</span><br><br>
         <span>background color: <input id="background_color" style="background-color: #9e9; font-size: 20px; border: solid #afa; width: 100px; height: 30px; font-family: sans-serif;" value="#7c8"></span><br><br>
         <span>text color: <input id="text_color" style="background-color: #9e9; font-size: 20px; border: solid #afa; width: 100px; height: 30px; font-family: sans-serif;" value="black"></span><br><br>
-        <span>font: <input id="font_family" style="background-color: #9e9; font-size: 20px; border: solid #afa; width: 200px; height: 30px; font-family: sans-serif;" value="sans-serif"></span><br><br>
+        <span>font: <input id="font_family" style="background-color: #bcb; font-size: 20px; border: solid #9a9; color: #333; width: 200px; height: 30px; font-family: sans-serif;" value="sans-serif"></span>
+        <select id="font_family_selector" style="background-color: #9e9; font-size: 20px; border: solid #afa; width: 300px; font-family: sans-serif;" size="3"></select>
+        <span style="color: gray; font-size: 20px;">※環境によっては使えないフォントがあります</span><br><br>
         <button style="width: 100px; height: 50px; font-size: 30px;" onclick="output()" id="output_button" class="button">出力</button>
         <pre style="font-size: 20px; font-family: sans-serif;" id="output_pre"></pre>
         <a style="margin-right: 0px;" href="./../index.html" class="back_button">戻る</a>
@@ -54,7 +56,7 @@
             $("#background").css("background-color", $("#background_color").val());
             $("#output_pre").css("font-size", $("#font_size").val() + "px");
             $("#output_pre").css("color", $("#text_color").val());
-            $("#output_pre").css("font-family", $("#font_family").val());
+            $("#output_pre").css("font-family", $("#font_family_selector").val());
             $("#output_pre").html($("#content").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"));
             MathJax.Hub.Queue(["Typeset",  MathJax.Hub]);
         }
@@ -69,6 +71,69 @@
             localStorage.setItem("saved_text", $("#content").val());
             alert("保存しました。");
         }
+        var fonts = ['sans-serif', 'arial', 'arial black', 'arial narrow', 'arial unicode ms', 'Century Gothic', 'Franklin Gothic Medium', 'Gulim', 'Dotum', 'Haettenschweiler', 'Impact', 'Ludica Sans Unicode', 'Microsoft Sans Serif', 'MS Sans Serif', 'MV Boil', 'New Gulim', 'Tahoma', 'Trebuchet', 'Verdana', 'serif', 'Batang', 'Book Antiqua', 'Bookman Old Style', 'Century', 'Estrangelo Edessa', 'Garamond', 'Gautami', 'Georgia', 'Gungsuh', 'Latha', 'Mangal', 'MS Serif', 'PMingLiU', 'Palatino Linotype', 'Raavi', 'Roman', 'Shruti', 'Sylfaen', 'Times New Roman', 'Tunga', 'monospace', 'BatangChe', 'Courier', 'Courier New', 'DotumChe', 'GlimChe', 'GungsuhChe', 'HG行書体', 'Lucida Console', 'MingLiU', 'OCRB', 'SimHei', 'SimSun', 'Small Fonts', 'Terminal', 'fantasy', 'alba', 'alba matter', 'alba super', 'baby kruffy', 'Chick', 'Croobie', 'Fat', 'Freshbot', 'Frosty', 'GlooGun', 'Jokewood', 'Modern', 'Monotype Corsiva', 'Poornut', 'Pussycat Snickers', 'Weltron Urban', 'cursive', 'Comic Sans MS', 'HGP行書体', 'HG正楷書体-PRO', 'Jenkins v2.0', 'Script', 'MS UI Gothic', 'MS Pゴシック', 'MS ゴシック', 'MS P明朝', 'MS 明朝', 'メイリオ', 'Meiryo UI', '游ゴシック', '游明朝', 'Osaka'];
+        fonts_sort();
+        for(var i = 0; i < fonts.length; i++){
+            $("#font_family_selector").append("<option>" + fonts[i] + "</option>");
+        }
+        $("#font_family_selector").val($("#font_family_selector > option:first").val());
+        $("#font_family").on('input', function(event) {
+            fonts_sort();
+            $("#font_family_selector > option").remove();
+            for(var i = 0; i < fonts.length; i++){
+                $("#font_family_selector").append("<option>" + fonts[i] + "</option>");
+            }
+            $("#font_family_selector").val($("#font_family_selector > option:first").val());
+        });
+
+        function fonts_sort(){
+            fonts.sort(function(a, b){
+                a = a.toString().toLowerCase();
+                b = b.toString().toLowerCase(); 
+                text = $("#font_family").val().toString().toLowerCase();
+                edit_distance_a = edit_distance(a, text);
+                edit_distance_b = edit_distance(b, text);
+                console.log(a + " " + b + " " + text + " " + edit_distance_a + " " + edit_distance_b);
+                if(edit_distance_a < edit_distance_b){
+                    return -1; 
+                }else if(edit_distance_a > edit_distance_b){
+                    return 1;
+                }
+                return 0;
+            });
+            console.log(fonts);
+        }
+
+        var s, t;
+
+        var dp;
+
+        function edit_distance(first, second){
+            s = first, t = second;
+            dp = [];
+            for(var i = 0; i <= s.length; i++){
+                dp[i] = [];
+                for(var j = 0; j <= t.length; j++){
+                    dp[i][j] = -1;
+                }
+            }
+            return calculate_edit_distance(0, 0);
+        }
+
+        function calculate_edit_distance(s_now, t_now){
+            if(dp[s_now][t_now] != -1){
+                return dp[s_now][t_now];
+            }else if(s_now == s.length){
+                return dp[s_now][t_now] = t.length - t_now;
+            }else if(t_now == t.length){
+                return dp[s_now][t_now] = s.length - s_now;
+            }else if(s[s_now] == t[t_now]){
+                return dp[s_now][t_now] = calculate_edit_distance(s_now + 1, t_now + 1);
+            }else{
+                return dp[s_now][t_now] = Math.min(calculate_edit_distance(s_now, t_now + 1) + 1, calculate_edit_distance(s_now + 1, t_now) + 1, calculate_edit_distance(s_now + 1, t_now + 1) + 1);
+            }
+        }
     </script>
 </body>
 </html>
+
