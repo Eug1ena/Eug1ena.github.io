@@ -58,7 +58,7 @@ div:not(.problem):not(.simple_div) {
 	width: 1500px;
 }
 
-p:not(.title):not(.back_button), li:not(.title) {
+p:not(.title):not(.back_button), a:not(.back_button), li:not(.title) {
 	font-size: 20px;
 }
 
@@ -75,9 +75,14 @@ p:not(.title):not(.back_button), li:not(.title) {
 
 .back_button {
 	font-size: 30px;
-	margin-right : 200px;
+	margin-right: 200px;
 	text-align: right;
 	margin-bottom: 100px;
 	color: #45d;
+}
+
+a {
+	display:block;
+	text-decoration: none;
 }
 
