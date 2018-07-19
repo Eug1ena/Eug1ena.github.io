@@ -55,7 +55,7 @@
             $("#output_pre").css("font-size", $("#font_size").val() + "px");
             $("#output_pre").css("color", $("#text_color").val());
             $("#output_pre").css("font-family", $("#font_family").val());
-            $("#output_pre").html($("#content").val());
+            $("#output_pre").html($("#content").val().replace(/</g, "&lt;").replace(/>/g, "&gt;"));
             MathJax.Hub.Queue(["Typeset",  MathJax.Hub]);
         }
         function save(){
