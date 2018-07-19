@@ -62,6 +62,10 @@ p:not(.title):not(.back_button), a:not(.back_button), li:not(.title) {
 	font-size: 20px;
 }
 
+a:not(.back_button) {
+	font-size: 20px;
+}
+
 .title {
 	font-size: 40px;
 }
