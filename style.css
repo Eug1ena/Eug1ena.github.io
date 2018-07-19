@@ -58,11 +58,15 @@ div:not(.problem):not(.simple_div) {
 	width: 1500px;
 }
 
-p:not(.title):not(.back_button), a:not(.back_button), li:not(.title) {
+p:not(.title):not(.back_button) {
 	font-size: 20px;
 }
 
 a:not(.back_button) {
+	font-size: 20px;
+}
+
+li:not(.title) {
 	font-size: 20px;
 }
 
