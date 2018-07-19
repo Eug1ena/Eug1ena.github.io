@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Euglena Page</title>
+    <link rel="stylesheet" href="./../style.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [['$','$'], ['\\(','\\)']],
+                processEscapes: true
+            },
+            CommonHTML: { matchFontHeight: false }
+        });
+        MathJax.Hub.Config({
+            tex2jax: {
+                skipTags: ['script', 'noscript', 'style', 'textarea']
+            }
+        });
+    </script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML" id="mathjax"></script>
+</head>
+<body style="background-color: #7c8;" id="background">
+    <h2 class="title">MathJax</h2>
+    <div style="position: absolute; left: 100px;" class="simple_div">
+        <p>入力した文字列を表示します。MathJaxが使える表記があったらそこを変換して表示します。</p>
+        <p style="color: #555">記入例) 実数 \$a,b\$ について、\$\$a,b>0\Rightarrow\sqrt{a}+\sqrt{b}>\sqrt{a+b}\$\$ が成り立つ。</p>
+        <textarea style="background-color: #9e9; font-size: 20px; border: solid #afa; font-family: sans-serif;" rows="8" cols="50" id="content"></textarea>
+        <button style="width: 80px; height: 40px; font-size: 20px;" onclick="save()" id="output_button" class="button">保存</button><br><br>
+        <span>font size: <input id="font_size" style="background-color: #9e9; font-size: 20px; border: solid #afa; width: 100px; height: 30px; font-family: sans-serif;" value="20">px</span><br><br>
+        <span>background color: <input id="background_color" style="background-color: #9e9; font-size: 20px; border: solid #afa; width: 100px; height: 30px; font-family: sans-serif;" value="#7c8"></span><br><br>
+        <span>text color: <input id="text_color" style="background-color: #9e9; font-size: 20px; border: solid #afa; width: 100px; height: 30px; font-family: sans-serif;" value="black"></span><br><br>
+        <span>font: <input id="font_family" style="background-color: #9e9; font-size: 20px; border: solid #afa; width: 200px; height: 30px; font-family: sans-serif;" value="sans-serif"></span><br><br>
+        <button style="width: 100px; height: 50px; font-size: 30px;" onclick="output()" id="output_button" class="button">出力</button>
+        <pre style="font-size: 20px; font-family: sans-serif;" id="output_pre"></pre>
+        <p style="margin-right: 0px;" onclick="location.href='./../index.html'" class="back_button">戻る</p>
+    </div>
+    <script>
+        var buttons = $(".button");
+        buttons.css("border-radius", "0px");
+        buttons.css("border", "solid #afa");
+        buttons.css("background-color", "#9d9");
+        buttons.mouseover(function(){$(this).css("background-color", "#9e9");});
+        buttons.mouseout(function(){$(this).css("background-color", "#9d9");});
+        buttons.mousedown(function(){$(this).css("background-color", "#cfc");});
+        buttons.mouseup(function(){$(this).css("background-color", "#9e9");});
+        $("#output_pre").css("height", $(window).height());
+        $(window).resize(function() {
+            $("#output_pre").css("height", $(window).height());
+        });
+        $("#content").val(localStorage.getItem("saved_text"));
+        function output(){
+            $("#background").css("background-color", $("#background_color").val());
+            $("#output_pre").css("font-size", $("#font_size").val() + "px");
+            $("#output_pre").css("color", $("#text_color").val());
+            $("#output_pre").css("font-family", $("#font_family").val());
+            $("#output_pre").html($("#content").val());
+            MathJax.Hub.Queue(["Typeset",  MathJax.Hub]);
+        }
+        function save(){
+            if(!$("#content").val()){
+                alert("何も入力されていません。");
+                return;
+            }
+            if(!confirm("保存しますか？")){
+                return;
+            }
+            localStorage.setItem("saved_text", $("#content").val());
+            alert("保存しました。");
+        }
+    </script>
+</body>
+</html>
