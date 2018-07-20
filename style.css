@@ -54,7 +54,7 @@ div:not(.problem):not(.simple_div):not(.general_div) {
 	width: 1500px;
 }
 
-p:not(.title):not(.back_button):not(.forty *):not(.thirty *) {
+p:not(.title):not(.back_button):not(.forty):not(.thirty) {
 	font-size: 20px;
 }
 

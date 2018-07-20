@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Euglena Page</title>
+    <link rel="stylesheet" href="./../style.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [['$','$'], ['\\(','\\)']],
+                processEscapes: true
+            },
+            CommonHTML: { matchFontHeight: false }
+        });
+        MathJax.Hub.Config({
+            tex2jax: {
+                skipTags: ['script', 'noscript', 'style', 'textarea']
+            }
+        });
+    </script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML" id="mathjax"></script>
+</head>
+<body style="background-color: #fff;" id="background">
+    <h2 style="padding-top: 0px;" class="title">scattering</h2>
+    <div style="position: absolute; left: 100px; width: 1000px; height: 3000px;" class="simple_div">
+        <textarea style="background-color: #c99; font-size: 20px; border: solid #a77; font-family: sans-serif;" rows="8" cols="50" id="content">I forgive you my son.
+But my tommy gun don't! HAHAHAHAHA!</textarea><br><br>
+        <span>font size: <input id="font_size_since" style="background-color: #eaa; font-size: 20px; border: solid #c88; width: 50px; height: 30px; font-family: sans-serif;" value="30">px ~ <input id="font_size_until" style="background-color: #eaa; font-size: 20px; border: solid #c88; width: 50px; height: 30px; font-family: sans-serif;" value="40">px</span><br><br>
+        <span>vertical spacing: <input id="vertical_spacing" style="background-color: #eaa; font-size: 20px; border: solid #c88; width: 50px; height: 30px; font-family: sans-serif;" value="100">px</span><br><br>
+        <span>vertical shaking: ±<input id="vertical_shaking" style="background-color: #eaa; font-size: 20px; border: solid #c88; width: 50px; height: 30px; font-family: sans-serif;" value="15">px</span><br><br>
+        <span>horizontal spacing: <input id="horizontal_spacing" style="background-color: #eaa; font-size: 20px; border: solid #c88; width: 50px; height: 30px; font-family: sans-serif;" value="25">px</span><br><br>
+        <span>horizontal shaking: ±<input id="horizontal_shaking" style="background-color: #eaa; font-size: 20px; border: solid #c88; width: 50px; height: 30px; font-family: sans-serif;" value="5">px</span><br><br>
+        <span>background color: <input id="background_color" style="background-color: #eaa; font-size: 20px; border: solid #c88; width: 100px; height: 30px; font-family: sans-serif;" value="#fff"></span><br><br>
+        <span>text color: <input id="text_color" style="background-color: #eaa; font-size: 20px; border: solid #c88; width: 100px; height: 30px; font-family: sans-serif;" value="black"></span><br><br>
+        <button style="width: 100px; height: 50px; font-size: 30px;" onclick="show()" class="button">GO</button>
+        <button style="width: 120px; height: 50px; font-size: 30px;" onclick="erase()" class="button">ERASE</button>
+        <pre style="font-size: 20px; font-family: sans-serif;" id="output_pre"></pre>
+        <a style="margin-right: 0px; color: #ea3" href="./../index.html" class="back_button"><u>BACK</u></a>
+    </div>
+    <script type="text/javascript" src="./../js/isInstalledFont.js"></script>
+    <script>
+        var buttons = $(".button");
+        buttons.css("border-radius", "0px");
+        buttons.css("border", "solid #faa");
+        buttons.css("background-color", "#d99");
+        buttons.mouseover(function(){$(this).css("background-color", "#e99");});
+        buttons.mouseout(function(){$(this).css("background-color", "#d99");});
+        buttons.mousedown(function(){$(this).css("background-color", "#fcc");});
+        buttons.mouseup(function(){$(this).css("background-color", "#e99");});
+        var fonts = ['sans-serif', 'arial', 'arial black', 'arial narrow', 'arial unicode ms', 'Century Gothic', 'Franklin Gothic Medium', 'Gulim', 'Dotum', 'Haettenschweiler', 'Impact', 'Ludica Sans Unicode', 'Microsoft Sans Serif', 'MS Sans Serif', 'MV Boil', 'New Gulim', 'Tahoma', 'Trebuchet', 'Verdana', 'serif', 'Batang', 'Book Antiqua', 'Bookman Old Style', 'Century', 'Estrangelo Edessa', 'Garamond', 'Gautami', 'Georgia', 'Gungsuh', 'Latha', 'Mangal', 'MS Serif', 'PMingLiU', 'Palatino Linotype', 'Raavi', 'Roman', 'Shruti', 'Sylfaen', 'Times New Roman', 'Tunga', 'monospace', 'BatangChe', 'Courier', 'Courier New', 'DotumChe', 'GlimChe', 'GungsuhChe', 'HG行書体', 'Lucida Console', 'MingLiU', 'OCRB', 'SimHei', 'SimSun', 'Small Fonts', 'Terminal', 'fantasy', 'alba', 'alba matter', 'alba super', 'baby kruffy', 'Chick', 'Croobie', 'Fat', 'Freshbot', 'Frosty', 'GlooGun', 'Jokewood', 'Modern', 'Monotype Corsiva', 'Poornut', 'Pussycat Snickers', 'Weltron Urban', 'cursive', 'Comic Sans MS', 'HGP行書体', 'HG正楷書体-PRO', 'Jenkins v2.0', 'Script', 'MS UI Gothic', 'MS Pゴシック', 'MS ゴシック', 'MS P明朝', 'MS 明朝', 'メイリオ', 'Meiryo UI', '游ゴシック', '游明朝', 'Osaka'];
+        var installed_fonts = [];
+
+        for(var i = 0; i < fonts.length; i++){
+            if(isInstalledFont(fonts[i])){
+                installed_fonts.push(fonts[i]);
+            }
+        }
+
+        var texts = $("#content").val().split("\n");
+
+        function show(){
+            erase();
+            $("#background").css("background-color", $("#background_color").val());
+            var font_size_since = parseInt($("#font_size_since").val());
+            var font_size_until = parseInt($("#font_size_until").val());
+            var vertical_spacing = parseInt($("#vertical_spacing").val());
+            var vertical_shaking = parseInt($("#vertical_shaking").val());
+            var horizontal_spacing = parseInt($("#horizontal_spacing").val());
+            var horizontal_shaking = parseInt($("#horizontal_shaking").val());
+            for(var i = 0; i < texts.length; i++){
+                for(var j = 0; j < texts[i].length; j++){
+                    var e = $("<span>");
+                    e.css("font-family", installed_fonts[Math.floor(Math.random() * installed_fonts.length)]);
+                    e.css("font-size", (Math.random() * (font_size_until - font_size_since + 1) + font_size_since) + "px");
+                    e.css("top", Math.random() * (vertical_shaking * 2) + 1000 + vertical_spacing * i + "px");
+                    e.css("left", Math.random() * (horizontal_shaking) + 25 + j * (horizontal_spacing) + "px");
+                    e.html(texts[i][j]);
+                    e.css("position", "absolute");
+                    e.css("transform", "rotate(" + (Math.random() * 30 - 15) + "deg)");
+                    e.attr("name", "scattering");
+                    e.css("font-size", $("#font_size").val() + "px");
+                    e.css("color", $("#text_color").val());
+                    $("body").append(e);
+                }
+            }
+        }
+ 
+        function erase(){
+            $("span[name='scattering']").remove();
+        }
+    </script>
+</body>
+</html>
+
