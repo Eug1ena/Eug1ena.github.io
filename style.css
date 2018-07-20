@@ -27,7 +27,7 @@ body {
 	margin-left : 20px;
 }
 
-div:not(.problem):not(.simple_div) {
+div:not(.problem):not(.simple_div):not(.general_div) {
 	background-color: #cfd;
 	position: absolute;
 	top: 100px;
