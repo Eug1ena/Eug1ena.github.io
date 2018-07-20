@@ -57,9 +57,8 @@ But my tommy gun don't! HAHAHAHAHA!</textarea><br><br>
             }
         }
 
-        var texts = $("#content").val().split("\n");
-
-        function show(){
+        function show(){    
+            var texts = $("#content").val().split("\n");
             erase();
             $("#background").css("background-color", $("#background_color").val());
             var font_size_since = parseInt($("#font_size_since").val());
