@@ -29,10 +29,6 @@ body {
 
 div:not(.problem):not(.simple_div):not(.general_div) {
 	background-color: #cfd;
-	position: absolute;
-	top: 100px;
-	left: 0px;
-	right: 0px;
 	margin: auto;
 }
 
@@ -58,7 +54,7 @@ div:not(.problem):not(.simple_div):not(.general_div) {
 	width: 1500px;
 }
 
-p:not(.title):not(.back_button) {
+p:not(.title):not(.back_button):not(.forty *):not(.thirty *) {
 	font-size: 20px;
 }
 
@@ -71,6 +67,7 @@ li:not(.title) {
 }
 
 .title {
+	padding-top: 50px;
 	font-size: 40px;
 }
 
@@ -92,5 +89,13 @@ li:not(.title) {
 a {
 	display:block;
 	text-decoration: none;
+}
+
+.thirty *{
+	font-size: 30px;
+}
+
+.forty *{
+	font-size: 40px;
 }
 
