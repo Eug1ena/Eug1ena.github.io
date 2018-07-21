@@ -31,6 +31,8 @@ But my tommy gun don't! HAHAHAHAHA!</textarea><br><br>
         <span>vertical shaking: ±<input id="vertical_shaking" style="background-color: #eaa; font-size: 20px; border: solid #c88; width: 50px; height: 30px; font-family: sans-serif;" value="15">px</span><br><br>
         <span>horizontal spacing: <input id="horizontal_spacing" style="background-color: #eaa; font-size: 20px; border: solid #c88; width: 50px; height: 30px; font-family: sans-serif;" value="25">px</span><br><br>
         <span>horizontal shaking: ±<input id="horizontal_shaking" style="background-color: #eaa; font-size: 20px; border: solid #c88; width: 50px; height: 30px; font-family: sans-serif;" value="5">px</span><br><br>
+        <span>rotation angle: <input id="rotation_angle" style="background-color: #eaa; font-size: 20px; border: solid #c88; width: 50px; height: 30px; font-family: sans-serif;" value="0">°</span><br><br>
+        <span>rotation shaking: ±<input id="rotation_shaking" style="background-color: #eaa; font-size: 20px; border: solid #c88; width: 50px; height: 30px; font-family: sans-serif;" value="30">°</span><br><br>
         <span>background color: <input id="background_color" style="background-color: #eaa; font-size: 20px; border: solid #c88; width: 100px; height: 30px; font-family: sans-serif;" value="#fff"></span><br><br>
         <span>text color: <input id="text_color" style="background-color: #eaa; font-size: 20px; border: solid #c88; width: 100px; height: 30px; font-family: sans-serif;" value="black"></span><br><br>
         <button style="width: 100px; height: 50px; font-size: 30px;" onclick="show()" class="button">GO</button>
@@ -67,6 +69,8 @@ But my tommy gun don't! HAHAHAHAHA!</textarea><br><br>
             var vertical_shaking = parseInt($("#vertical_shaking").val());
             var horizontal_spacing = parseInt($("#horizontal_spacing").val());
             var horizontal_shaking = parseInt($("#horizontal_shaking").val());
+            var rotation_angle = parseInt($("#rotation_angle").val());
+            var rotation_shaking = parseInt($("#rotation_shaking").val());
             for(var i = 0; i < texts.length; i++){
                 for(var j = 0; j < texts[i].length; j++){
                     var e = $("<span>");
@@ -76,7 +80,7 @@ But my tommy gun don't! HAHAHAHAHA!</textarea><br><br>
                     e.css("left", Math.random() * (horizontal_shaking) + 25 + j * (horizontal_spacing) + "px");
                     e.html(texts[i][j]);
                     e.css("position", "absolute");
-                    e.css("transform", "rotate(" + (Math.random() * 30 - 15) + "deg)");
+                    e.css("transform", "rotate(" + (rotation_angle + Math.random() * rotation_shaking * 2 - rotation_shaking) + "deg)");
                     e.attr("name", "scattering");
                     e.css("font-size", $("#font_size").val() + "px");
                     e.css("color", $("#text_color").val());

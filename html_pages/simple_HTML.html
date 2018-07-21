@@ -43,7 +43,7 @@
         $(window).resize(function() {
             $("#___output_div").css("height", $(window).height() * 4);
         });
-        $("#___content").val(localStorage.getItem("saved_text"));
+        $("#___content").val(localStorage.getItem("saved_text_simple_HTML"));
         function output(){
             $("#___output_div *").remove();
             $("#___output_div").text("");
@@ -58,7 +58,7 @@
             if(!confirm("保存しますか？")){
                 return;
             }
-            localStorage.setItem("saved_text", $("#___content").val());
+            localStorage.setItem("saved_text_simple_HTML", $("#___content").val());
             alert("保存しました。");
         }
     </script>
