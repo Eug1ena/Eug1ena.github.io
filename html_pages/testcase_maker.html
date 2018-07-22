@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Euglena Page</title>
+    <link rel="stylesheet" href="./../style.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body style="background-color: #7c8;" id="background">
+    <h2 style="padding-top: 0px;" class="title">Testcase Maker</h2>
+    <div style="position: absolute; left: 100px;" class="simple_div">
+        <p>競技プログラミングの作問用のテストケースを作ります。</p>
+        <p>入力された文字列を Javascript のコードとして読み取ります。以下のライブラリが用意されています : </p>
+        <p><span class="Courier">TESTCASE_WRITE(text)</span> : テストケースのファイルに<span class="Courier">text</span>を書きます。</p>
+        <p><span class="Courier">TESTCASE_WRITELINE(text)</span> : テストケースのファイルに<span class="Courier">text</span>を書き、そのあと改行します。</p>
+        <p>(上の2つの関数を使わずに変数 <span class="Courier">TESTCASE_STRING</span> を直接編集することも可能です)</p>
+        <p><span class="Courier">TESTCASE_NUMBER</span> : テストケース番号、1-indexedです。</p>
+        <p><span class="Courier">rand(l, r)</span> : <span class="Courier">l</span>以上<span class="Courier">r</span>以下の整数をランダムで発生させます。</p>
+        <textarea style="background-color: #9e9; font-size: 20px; border: solid #afa; font-family: 'Courier', sans-serif;" rows="8" cols="50" id="content">var N = rand(1, 200);
+var K = rand(1, 2000);
+TESTCASE_WRITELINE(N + " " + K);</textarea><br><br>
+        <span>File name : <input type="text" class="Lucida" style="background-color: #9e9; font-size: 20px; width: 200px; border: solid #afa;" value="testcase_?" id="file_name">.txt <span style="color: gray;">?記号はテストケース番号で置き換えられます</span></span><br><br>
+        <span>Number of Files : <input type="text" class="Lucida" style="background-color: #9e9; font-size: 20px; width: 100px; border: solid #afa;" value="1" id="number_of_files"></span><br><br>
+        <button style="width: 100px; height: 50px; font-size: 30px; color:" onclick='output()' class="button">実行</button>
+        <a id="download_link" target="_blank"></a>
+        <pre style="font-size: 20px; font-family: sans-serif;" id="output_pre"></pre>
+        <a style="margin-right: 0px;" href="./../index.html" class="back_button">戻る</a>
+    </div>
+    <script>
+        var TESTCASE_STRING;
+
+        function TESTCASE_WRITE(text){
+            TESTCASE_STRING += text;
+        }
+
+        function TESTCASE_WRITELINE(text){
+            TESTCASE_STRING += text + "\n";
+        }
+
+        function rand(l, r){
+            return Math.floor(Math.random() * (r - l + 1)) + l;
+        }
+
+        var TESTCASE_NUMBER;
+    </script>
+    <script> // setBlobUrl("run_button", "312");
+
+        function setBlobUrl(id, content, name, number){
+            var blob = new Blob([ content ], { "type" : "application/x-msdownload" });
+            window.URL = window.URL || window.webkitURL;
+            $("#" + id).attr("href", window.URL.createObjectURL(blob));
+            $("#" + id).attr("download", name.replace(/\?/, number) + ".txt");
+        }
+
+        function output(){
+            var script = $("<script>");
+            script.html($("#content").val() + "\n;setBlobUrl('download_link', TESTCASE_STRING, $('#file_name').val(), TESTCASE_NUMBER);$('#download_link')[0].click();");
+            script.attr("id", "running_script");
+            for(var i = 0; i < parseInt($("#number_of_files").val()); i++){
+                if(i % 50 == 0 && i != 0){
+                    if(!confirm("ダウンロードを続けますか？")){
+                        break;
+                    }
+                }
+                TESTCASE_STRING = "";
+                TESTCASE_NUMBER = i + 1;
+                $("#running_script").remove();
+                $(document.body).append(script);
+            }
+        }
+
+        var buttons = $(".button");
+        buttons.css("border-radius", "0px");
+        buttons.css("border", "solid #afa");
+        buttons.css("background-color", "#9d9");
+        buttons.mouseover(function(){$(this).css("background-color", "#9e9");});
+        buttons.mouseout(function(){$(this).css("background-color", "#9d9");});
+        buttons.mousedown(function(){$(this).css("background-color", "#cfc");});
+        buttons.mouseup(function(){$(this).css("background-color", "#9e9");});
+
+        $("#content").keydown(function(e){
+            if(e.keyCode === 9) {
+                e.preventDefault();
+                var elem = e.target;
+                var val = elem.value;
+                var pos = elem.selectionStart;
+                elem.value = val.substr(0, pos) + '\t' + val.substr(pos, val.length);
+                elem.setSelectionRange(pos + 1, pos + 1);
+            }
+        });
+    </script>
+</body>
+</html>
+

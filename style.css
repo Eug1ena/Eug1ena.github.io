@@ -3,6 +3,10 @@ body {
 	text-align: center;
 }
 
+.Lucida{
+	font-family: 'Lucida Grande','TsukuARdGothic-Regular','ヒラギノ丸ゴ ProN','Hiragino Maru Gothic ProN',sans-serif;
+}
+
 .problem p:not(.problem_title){
 	text-align: left;
 	margin-left : 20px;
@@ -35,6 +39,10 @@ div:not(.problem):not(.simple_div):not(.general_div) {
 .code {
 	font-size: 20px;
 	text-align: left;
+	font-family: "Courier", sans-serif;
+}
+
+.Courier{
 	font-family: "Courier", sans-serif;
 }
 
