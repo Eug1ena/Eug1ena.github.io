@@ -51,6 +51,10 @@
         $(window).resize(function() {
             $("#output_pre").css("height", $(window).height());
         });
+        $("#output_pre").css("width", $(window).width() * 0.95);
+        $(window).resize(function() {
+            $("#output_pre").css("width", $(window).width() * 0.95);
+        });
         $("#content").val(localStorage.getItem("saved_text"));
         function output(){
             $("#background").css("background-color", $("#background_color").val());
