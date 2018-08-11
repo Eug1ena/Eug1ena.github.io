@@ -115,3 +115,28 @@ pre {
     word-wrap: break-word;
 }
 
+.blue_table{
+	display: inline-block;
+	border-collapse: collapse;
+}
+
+.blue_table th, .blue_table td{
+	font-size: 25px;
+	border: solid 3px #38d;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	padding-left: 15px;
+	padding-right: 15px;
+}
+
+easy{
+	color: #3b1;
+}
+
+normal{
+	color: #ca0;
+}
+
+hard{
+	color: #d00;
+}

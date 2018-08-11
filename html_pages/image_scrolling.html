@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Euglena Page</title>
+    <link rel="stylesheet" href="./../style.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body style="background-color: #7c8;" id="background">
+    <h1 style="color: #b73;">このページはボツになったものです</h1>
+    <h2 style="padding-top: 0px;" class="title">Image Scrolling</h2>
+    <div style="position: absolute; width: 100%; left: 0;" class="general_div">
+        <p>画像を選んで出力して穴を開ける</p>
+        <span>size: <input id="img_size" style="background-color: #9e9; font-size: 20px; border: solid #afa; width: 100px; height: 30px; font-family: sans-serif;" value="1"> times</span><br><br>
+        <button style="background-color: #9e9; font-size: 20px; border: solid #afa; width: 220px; height: 50px; font-family: sans-serif;" class="button" id="file_button">画像ファイルを選択<input type="file" id="choosing_file" style="display: none;"></button><br>
+        <input id="file_name" style="background-color: #9e9; font-size: 20px; border: solid #afa; width: 350px; height: 30px; font-family: sans-serif; text-align: center;" value="ファイルが選択されていません" disabled><br><br>
+        <!--<button style="width: 100px; height: 50px; font-size: 30px;" onclick="output()" class="button">出力</button><br><br>-->
+        <canvas width="500" height="500" style="background-color: #8d9;" id="canvas"></canvas>
+        <a style="margin-right: 0px;" href="./../index.html" class="back_button">戻る</a>
+    </div>
+    <script>
+        var buttons = $(".button");
+        buttons.css("border-radius", "0px");
+        buttons.css("border", "solid #afa");
+        buttons.css("background-color", "#9d9");
+        buttons.mouseover(function(){$(this).css("background-color", "#9e9");});
+        buttons.mouseout(function(){$(this).css("background-color", "#9d9");});
+        buttons.mousedown(function(){$(this).css("background-color", "#cfc");});
+        buttons.mouseup(function(){$(this).css("background-color", "#9e9");});
+        $("#content").val(localStorage.getItem("saved_text"));
+
+        $("#file_button").click(function(){
+            $("#choosing_file")[0].click();
+        });
+
+        $("#img_size").on("change", update);
+
+        $("#choosing_file").on("change", function(){
+            var file = $(this).prop("files")[0];
+            $("#file_name").val(file.name);
+            update();
+        });
+
+        var ctx = $("#canvas")[0].getContext("2d");
+
+        function update(){
+            var file = $("#choosing_file").prop("files")[0];
+            console.log(file);
+            if(file){
+                var reader = new FileReader();
+                reader.onload = function(e){    
+                    var img = new Image();
+                    img.src = reader.result;
+                    console.log(img);
+                    img.onload = function(){
+                        $("#canvas").attr("width", img.naturalWidth * parseFloat($("#img_size").val()) + "px");
+                        $("#canvas").attr("height", img.naturalHeight * parseFloat($("#img_size").val()) + "px");
+                        console.log(img.naturalWidth);
+                        ctx.beginPath();
+                        ctx.drawImage(img, 0, 0, $("#canvas").width(), $("#canvas").height());
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+</html>
+
