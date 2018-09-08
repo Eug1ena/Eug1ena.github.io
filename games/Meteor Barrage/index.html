@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Meteor Barrage</title>
+    <script type="text/javascript" src="js/jquery 3.3.1.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+    <!--[if IE]><script type="text/javascript" src="js/excanvas.js"></script><![endif]-->
+</head>
+<body style="background-color: #bfb; margin: 0;">
+    <canvas></canvas>
+    <script>
+        var canvas = $("canvas");
+
+        canvas.attr("width", 800);
+        canvas.attr("height", 800);
+        canvas.css("display", "inline");
+        canvas.css("position", "absolute");
+        canvas.css("width", 500);
+        canvas.css("height", 500);
+        canvas.css("top", 0);
+        canvas.css("left", 0);
+        canvas.css("right", 0);
+        canvas.css("bottom", 0);
+        canvas.css("margin", "auto");
+        canvas.css("border", "solid 5px #aaa");
+
+        var ctx = canvas[0].getContext("2d");
+
+        var rotate_loop = setInterval(function(){
+           	redraw();
+        }, 16);
+
+        var ball = {pos : {x: 400, y: 200}, speed: {x: -2, y: -6}};
+
+        var enemy_ball = [];
+        var homing_ball = [];
+        var slow_enemy_ball = [];
+        var cooldown = 0, enemy_spawncycle = 50, homing_enemy_spawncycle = 500, slow_enemy_spawncycle = 1000;
+
+        var is_start_scene = true;
+        var is_rule_scene = false;
+        var is_gameover = false;
+        var is_gaming = false;
+        var gamemode = 0;
+        var gameover_phase = 0;
+
+        var time = 0;
+
+        function redraw(){
+            ctx.clearRect(0, 0, 800, 800);
+
+            if(is_start_scene){
+                menu();
+            }else if(is_rule_scene){
+                rule();
+            }else if(!is_gaming){
+                choosing_mode();
+            }else if(!is_gameover){
+                game();
+            }else{
+                gameover();
+            }
+        }
+
+        function initialize(){
+            ball = {pos : {x: 400, y: 200}, speed: {x: -2, y: -6}};
+            enemy_ball = [];
+            homing_ball = [];
+            slow_enemy_ball = [];
+            cooldown = 0;
+            if(gamemode == 1){
+                enemy_spawncycle = 200;
+            }else{
+                enemy_spawncycle = 50;
+            }
+            homing_enemy_spawncycle = 500;
+            slow_enemy_spawncycle = 1000;
+            gameover_phase = 0;
+            time = 0;
+            is_gameover = false;
+            is_gaming = true;
+        }
+
+        var is_mouse_on_start_button = false, is_mouse_on_rule_button = false;
+
+        var start_button_param = [{
+                x : 200,
+                y : 550,
+                width: 400,
+                height: 100,
+                radius: 26,
+                color: "#fcabab"
+            }, {
+                x : 180,
+                y : 545,
+                width: 440,
+                height: 110,
+                radius: 26,
+                color: "#fcabab"
+            }];
+
+        var rule_button_param = [{
+                x : 250,
+                y : 350,
+                width: 300,
+                height: 100,
+                radius: 26,
+                color: "#ff9696"
+            }, {
+                x : 235,
+                y : 345,
+                width: 330,
+                height: 110,
+                radius: 26,
+                color: "#ff9696"
+            }];
+
+        var back_from_rule_button_param = [{
+                x : 250,
+                y : 650,
+                width: 300,
+                height: 100,
+                radius: 26,
+                color: "#999"
+            }, {
+                x : 235,
+                y : 645,
+                width: 330,
+                height: 110,
+                radius: 26,
+                color: "#999"
+            }];
+
+        var back_from_gamemode_button_param = [{
+                x : 595,
+                y : 660,
+                width: 150,
+                height: 80,
+                radius: 26,
+                color: "#999"
+            }, {
+                x : 587,
+                y : 655,
+                width: 165,
+                height: 90,
+                radius: 26,
+                color: "#999"
+            }];
+
+        var back_button_param = [{
+                x : 175,
+                y : 575,
+                width: 450,
+                height: 100,
+                radius: 26,
+                color: "#fff"
+            }, {
+                x : 155,
+                y : 570,
+                width: 500,
+                height: 110,
+                radius: 26,
+                color: "#fff"
+            }];
+
+        var gamemode_button_param = [
+            [{
+                x : 70,
+                y : 230,
+                width: 300,
+                height: 100,
+                radius: 26,
+                color: "#f9bdbb"
+            }, {
+                x : 50,
+                y : 225,
+                width: 340,
+                height: 110,
+                radius: 26,
+                color: "#f9bdbb"
+            }], 
+
+            [{
+                x : 430,
+                y : 230,
+                width: 300,
+                height: 100,
+                radius: 26,
+                color: "#f9bdbb"
+            }, {
+                x : 410,
+                y : 225,
+                width: 340,
+                height: 110,
+                radius: 26,
+                color: "#f9bdbb"
+            }], 
+
+            [{
+                x : 70,
+                y : 470,
+                width: 300,
+                height: 100,
+                radius: 26,
+                color: "#ffa29e"
+            }, {
+                x : 50,
+                y : 465,
+                width: 340,
+                height: 110,
+                radius: 26,
+                color: "#ffa29e"
+            }], 
+
+            [{
+                x : 430,
+                y : 470,
+                width: 300,
+                height: 100,
+                radius: 26,
+                color: "#f78985"
+            }, {
+                x : 410,
+                y : 465,
+                width: 340,
+                height: 110,
+                radius: 26,
+                color: "#f78985"
+            }] 
+        ];
+
+        function menu(){
+            ctx.beginPath();
+            ctx.fillStyle = "#cfdff9";
+            ctx.fillRect(0, 0, 800, 800);
+
+            ctx.beginPath();
+            ctx.font = "70px Lucida Grande";
+            ctx.fillStyle = "#f98484";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("Meteor Barrage", 400, 200); 
+
+            $("canvas").css("cursor", "default");               
+
+            if(is_mouse_on_start_button){
+                draw_rect(start_button_param[1]);
+                ctx.beginPath();
+                ctx.font = "60px Lucida Grande";
+                ctx.fillStyle = "#fff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("スタート", 400, 600); 
+
+                $("canvas").css("cursor", "pointer");
+            }else{
+                draw_rect(start_button_param[0]);
+                ctx.beginPath();
+                ctx.font = "55px Lucida Grande";
+                ctx.fillStyle = "#fff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("スタート", 400, 600);
+            }
+
+            if(is_mouse_on_rule_button){
+                draw_rect(rule_button_param[1]);
+                ctx.beginPath();
+                ctx.font = "55px Lucida Grande";
+                ctx.fillStyle = "#fff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("ルール", 400, 400); 
+
+                $("canvas").css("cursor", "pointer");
+            }else{
+                draw_rect(rule_button_param[0]);
+                ctx.beginPath();
+                ctx.font = "50px Lucida Grande";
+                ctx.fillStyle = "#fff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("ルール", 400, 400);
+            }
+        }
+
+        var is_mouse_on_demoplay_button = false, is_mouse_on_back_from_rule_button = false
+
+        function rule(){
+            ctx.beginPath();
+            ctx.fillStyle = "#cfdff9";
+            ctx.fillRect(0, 0, 800, 800);
+
+            ctx.beginPath();
+            ctx.font = "60px Lucida Grande";
+            ctx.fillStyle = "#f98484";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("ルール", 400, 100);
+
+            ctx.beginPath();
+            ctx.font = "37px Lucida Grande";
+            ctx.fillStyle = "#333";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("マウスをクリックするとボールは", 400, 230);
+            ctx.fillText("マウスのある位置と逆に飛びはねます", 400, 290);
+            ctx.fillText("青いボールを画面の外に", 400, 350);
+            ctx.fillText("出してしまうとゲームオーバー", 400, 410);
+            ctx.fillText("赤いボールにぶつかると飛ばされるので注意", 400, 470);
+            ctx.fillText("できるだけ長く画面の中にとどまろう", 400, 580);
+
+            $("canvas").css("cursor", "default");
+
+            if(is_mouse_on_back_from_rule_button){
+                draw_rect(back_from_rule_button_param[1]);
+                ctx.beginPath();
+                ctx.font = "55px Lucida Grande";
+                ctx.fillStyle = "#fff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("戻る", 400, 700); 
+
+                $("canvas").css("cursor", "pointer");
+            }else{
+                draw_rect(back_from_rule_button_param[0]);
+                ctx.beginPath();
+                ctx.font = "50px Lucida Grande";
+                ctx.fillStyle = "#fff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("戻る", 400, 700);
+            }
+        }
+
+        var choosing_gamemode_button = 0, is_mouse_on_back_from_gamemode_button = false;
+
+        function choosing_mode(){
+            ctx.beginPath();
+            ctx.fillStyle = "#cfdff9";
+            ctx.fillRect(0, 0, 800, 800);
+
+            ctx.beginPath();
+            ctx.font = "70px Lucida Grande";
+            ctx.fillStyle = "#f98484";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("Gamemode", 400, 100);                
+
+            $("canvas").css("cursor", "default");
+
+            if(choosing_gamemode_button == 1){
+                draw_rect(gamemode_button_param[0][1]);
+                ctx.beginPath();
+                ctx.font = "60px Lucida Grande";
+                ctx.fillStyle = "#fff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("かんたん", 220, 280); 
+
+                $("canvas").css("cursor", "pointer");
+            }else{
+                draw_rect(gamemode_button_param[0][0]);
+                ctx.beginPath();
+                ctx.font = "55px Lucida Grande";
+                ctx.fillStyle = "#fff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("かんたん", 220, 280);
+            }
+
+            if(choosing_gamemode_button == 2){
+                draw_rect(gamemode_button_param[1][1]);
+                ctx.beginPath();
+                ctx.font = "60px Lucida Grande";
+                ctx.fillStyle = "#fff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("ふつう", 580, 280); 
+
+                $("canvas").css("cursor", "pointer");
+            }else{
+                draw_rect(gamemode_button_param[1][0]);
+                ctx.beginPath();
+                ctx.font = "55px Lucida Grande";
+                ctx.fillStyle = "#fff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("ふつう", 580, 280);
+
+            }
+
+            if(choosing_gamemode_button == 3){
+                draw_rect(gamemode_button_param[2][1]);
+                ctx.beginPath();
+                ctx.font = "60px Lucida Grande";
+                ctx.fillStyle = "#fff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("シンプル", 220, 520); 
+
+                $("canvas").css("cursor", "pointer");
+            }else{
+                draw_rect(gamemode_button_param[2][0]);
+                ctx.beginPath();
+                ctx.font = "55px Lucida Grande";
+                ctx.fillStyle = "#fff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("シンプル", 220, 520);
+            }
+
+            if(choosing_gamemode_button == 4){
+                draw_rect(gamemode_button_param[3][1]);
+                ctx.beginPath();
+                ctx.font = "60px Lucida Grande";
+                ctx.fillStyle = "#fff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("ぶっ飛び", 580, 520); 
+
+                $("canvas").css("cursor", "pointer");
+            }else{
+                draw_rect(gamemode_button_param[3][0]);
+                ctx.beginPath();
+                ctx.font = "55px Lucida Grande";
+                ctx.fillStyle = "#fff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("ぶっ飛び", 580, 520);
+            }
+
+            if(is_mouse_on_back_from_gamemode_button){
+                draw_rect(back_from_gamemode_button_param[1]);
+                ctx.beginPath();
+                ctx.font = "50px Lucida Grande";
+                ctx.fillStyle = "#fff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("戻る", 670, 700); 
+
+                $("canvas").css("cursor", "pointer");
+            }else{
+                draw_rect(back_from_gamemode_button_param[0]);
+                ctx.beginPath();
+                ctx.font = "45px Lucida Grande";
+                ctx.fillStyle = "#fff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("戻る", 670, 700);
+            }
+        }
+
+        function game(){
+            ctx.beginPath();
+            ctx.fillStyle = "#fed";
+            ctx.fillRect(0, 0, 800, 800);
+
+            ball.pos.x += ball.speed.x;
+            ball.pos.y += ball.speed.y;
+            ball.speed.y += 0.2;
+
+            if(cooldown > 0){
+                cooldown--;
+            }
+
+            if(gamemode == 1){
+                draw_enemy(0.5, 2, 1);
+                draw_slow_enemy(1);
+            }else if(gamemode == 2){
+                draw_homing(1);
+                draw_enemy(1, 1, 1);
+                draw_slow_enemy(1);
+            }else if(gamemode == 3){
+                draw_enemy(0.5, min(1, 32 / sqrt(time)), 1);
+            }else if(gamemode == 4){
+                draw_homing(3);
+                draw_enemy(1, 1, 10);
+                draw_slow_enemy(5);
+            }
+
+            ctx.beginPath();
+            ctx.fillStyle = "#4286f4";
+            ctx.arc(ball.pos.x, ball.pos.y, 15, to_radian(0), to_radian(360), true);
+            ctx.fill();
+
+            if(ball.pos.x < -20 || ball.pos.x > 820 || ball.pos.y < -50 || ball.pos.y > 820){
+                is_gameover = true;
+            }
+
+            ctx.beginPath();
+            ctx.font = "50px Lucida Grande";
+            ctx.strokeStyle = "#000";
+            ctx.fillStyle = "#f7e81d";
+            ctx.textAlign = "left";
+            ctx.textBaseline = "top";
+            ctx.lineWidth = 1;
+            ctx.fillText("Time : " + floor(time / 16), 20, 20);
+            ctx.strokeText("Time : " + floor(time / 16), 20, 20);
+
+            time += floor(time / 1000 + 1) + 1;
+        }
+
+        var is_mouse_on_back_button = false;
+
+        function gameover(){
+            ctx.beginPath();
+            ctx.fillStyle = "#fed";
+            ctx.fillRect(0, 0, 800, 800);
+
+            gameover_phase++;
+
+            if(gamemode == 1){
+                draw_homing(1);
+                draw_enemy(1, 1, 1);
+                draw_slow_enemy(1);
+            }else if(gamemode == 2){
+                draw_homing(1);
+                draw_enemy(1, 1, 1);
+                draw_slow_enemy(1);
+            }else if(gamemode == 3){
+                draw_enemy(0.5, min(1, 32 / sqrt(time)), 1);
+            }else if(gamemode == 4){
+                draw_homing(3);
+                draw_enemy(1, 1, 10);
+                draw_slow_enemy(5);
+            }
+
+
+            ctx.beginPath();
+            ctx.fillStyle = "#999";
+            ctx.fillRect(0, 0, (gameover_phase - 10) * 40, 800);
+            ctx.fillRect((30 - gameover_phase) * 40, 0, (gameover_phase - 10) * 40, 800);
+
+            if(gameover_phase > 60){
+                ctx.beginPath();
+                ctx.font = "70px Lucida Grande";
+                ctx.fillStyle = "#fff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("GAME OVER!", 400, 200);
+            }
+            if(gameover_phase > 90){
+                ctx.beginPath();
+                ctx.font = "70px Lucida Grande";
+                ctx.fillStyle = "#fff";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText("Time : " + floor(time / 16), 400, 400); 
+            }
+            if(gameover_phase > 120){
+                if(is_mouse_on_back_button){
+                    draw_rect(back_button_param[1]);
+                    ctx.beginPath();
+                    ctx.font = "55px Lucida Grande";
+                    ctx.fillStyle = "#777";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText("タイトルに戻る", 400, 625); 
+
+                    $("canvas").css("cursor", "pointer");
+                }else{
+                    draw_rect(back_button_param[0]);
+                    ctx.beginPath();
+                    ctx.font = "50px Lucida Grande";
+                    ctx.fillStyle = "#777";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText("タイトルに戻る", 400, 625); 
+
+                    $("canvas").css("cursor", "default");
+                }
+            }
+        }
+
+        function draw_enemy(magnification, frequency, blow_power){
+            for(var i = 0; i < enemy_ball.length; i++){
+                ctx.beginPath();
+                ctx.fillStyle = "#f98484";
+                ctx.strokeStyle = "#000";
+                ctx.lineWidth = 3;
+                ctx.arc(enemy_ball[i].pos.x, enemy_ball[i].pos.y, enemy_ball[i].size - 2, to_radian(0), to_radian(360), true);
+                ctx.stroke();
+                ctx.fill();
+
+                if(distance(ball.pos.x - enemy_ball[i].pos.x, ball.pos.y - enemy_ball[i].pos.y) <= 15 + enemy_ball[i].size && cooldown == 0){
+                    ball.speed.x = ball.speed.x / 3 + enemy_ball[i].speed.x * blow_power;
+                    ball.speed.y = ball.speed.y / 3 + enemy_ball[i].speed.y * blow_power;
+                    cooldown = 10;
+                }
+
+                enemy_ball[i].pos.x += enemy_ball[i].speed.x;
+                enemy_ball[i].pos.y += enemy_ball[i].speed.y;
+            }
+
+            for(var i = enemy_ball.length - 1; i >= 0; i--){
+                if(enemy_ball[i].pos.x < -20 || enemy_ball[i].pos.x > 820 || enemy_ball[i].pos.y < -20 || enemy_ball[i].pos.y > 820){
+                    enemy_ball.splice(i, 1);
+                }
+            }
+
+            if(enemy_spawncycle == 0){
+                enemy_spawncycle = parseInt(30 * frequency);
+                var ball_position = rand(4);
+                var rand_speed = (rand2(10) + 5 + time / 3000) * magnification;
+                var fixing_speed = (2 + time / 3000) * magnification;
+                var ball_size = 15;
+
+                if(ball_position == 0){
+                    enemy_ball.push({pos : {x: rand2(800), y: 0}, speed: {x: fixing_speed, y: rand_speed}, size: ball_size});
+                }else if(ball_position == 1){
+                    enemy_ball.push({pos : {x: 800, y: rand2(800)}, speed: {x: -rand_speed, y: fixing_speed}, size: ball_size});
+                }else if(ball_position == 2){
+                    enemy_ball.push({pos : {x: rand2(800), y: 800}, speed: {x: -fixing_speed, y: -rand_speed}, size: ball_size});
+                }else if(ball_position == 3){
+                    enemy_ball.push({pos : {x: 0, y: rand2(800)}, speed: {x: rand_speed, y: -fixing_speed}, size: ball_size});
+                }
+            }
+
+            if(enemy_spawncycle > 0){
+                enemy_spawncycle--;
+            }
+        }
+
+        var homing_y = 0;
+
+        function draw_homing(blow_power){
+            if(homing_enemy_spawncycle == 100){
+                homing_y = ball.pos.y;
+            }
+
+            if(homing_enemy_spawncycle <= 100){
+                ctx.beginPath();
+                ctx.fillStyle = "#f7cfcf";
+                ctx.fillRect(0, homing_y - 50, 800, 100);
+            }
+
+            for(var i = 0; i < homing_ball.length; i++){
+                ctx.beginPath();
+                ctx.fillStyle = "#f98484";
+                ctx.strokeStyle = "#000";
+                ctx.lineWidth = 3;
+                ctx.arc(homing_ball[i].pos.x, homing_ball[i].pos.y, homing_ball[i].size - 2, to_radian(0), to_radian(360), true);
+                ctx.stroke();
+                ctx.fill();
+
+                if(distance(ball.pos.x - homing_ball[i].pos.x, ball.pos.y - homing_ball[i].pos.y) <= 15 + homing_ball[i].size && cooldown == 0){
+                    ball.speed.x = ball.speed.x / 2 + homing_ball[i].speed.x * blow_power;
+                    ball.speed.y = ball.speed.y / 2 + homing_ball[i].speed.y * blow_power;
+                    cooldown = 10;
+                }
+
+                homing_ball[i].pos.x += homing_ball[i].speed.x;
+                homing_ball[i].pos.y += homing_ball[i].speed.y;
+            }
+
+            for(var i = homing_ball.length - 1; i >= 0; i--){
+                if(homing_ball[i].pos.x < -20 || homing_ball[i].pos.x > 820 || homing_ball[i].pos.y < -20 || homing_ball[i].pos.y > 820){
+                    homing_ball.splice(i, 1);
+                }
+            }
+
+            if(homing_enemy_spawncycle % 5 == 0 && homing_enemy_spawncycle < 50){
+                var ball_size = 50;
+                homing_ball.push({pos : {x: 0, y: homing_y}, speed: {x: 100, y: 0}, size: ball_size});
+            }
+
+            if(homing_enemy_spawncycle == 0){
+                homing_enemy_spawncycle = 300;
+            }
+
+            if(homing_enemy_spawncycle > 0){
+                homing_enemy_spawncycle--;
+            }
+        }
+
+        function draw_slow_enemy(blow_power){
+            for(var i = 0; i < slow_enemy_ball.length; i++){
+                ctx.beginPath();
+                ctx.fillStyle = "#f98484";
+                ctx.strokeStyle = "#000";
+                ctx.lineWidth = 3;
+                ctx.arc(slow_enemy_ball[i].pos.x, slow_enemy_ball[i].pos.y, slow_enemy_ball[i].size - 2, to_radian(0), to_radian(360), true);
+                ctx.stroke();
+                ctx.fill();
+
+                if(distance(ball.pos.x - slow_enemy_ball[i].pos.x, ball.pos.y - slow_enemy_ball[i].pos.y) <= 15 + slow_enemy_ball[i].size && cooldown == 0){
+                    ball.speed.x *= -2 - time / 2000;
+                    ball.speed.y *= -2 - time / 2000;
+                    cooldown = 10;
+                }
+
+                slow_enemy_ball[i].pos.x += slow_enemy_ball[i].speed.x * blow_power;
+                slow_enemy_ball[i].pos.y += slow_enemy_ball[i].speed.y * blow_power;
+            }
+
+            for(var i = slow_enemy_ball.length - 1; i >= 0; i--){
+                if(slow_enemy_ball[i].pos.x < -20 || slow_enemy_ball[i].pos.x > 820 || slow_enemy_ball[i].pos.y < -20 || slow_enemy_ball[i].pos.y > 820){
+                    slow_enemy_ball.splice(i, 1);
+                }
+            }
+
+            if(slow_enemy_spawncycle == 0){
+                slow_enemy_spawncycle = 100;
+                var ball_position = rand(4);
+                var rand_speed = rand2(2.5) + 1.25;
+                var fixing_speed = 0.5;
+                var ball_size = 30;
+
+                if(ball_position == 0){
+                    slow_enemy_ball.push({pos : {x: rand2(800), y: -15}, speed: {x: fixing_speed, y: rand_speed}, size: ball_size});
+                }else if(ball_position == 1){
+                    slow_enemy_ball.push({pos : {x: 815, y: rand2(800)}, speed: {x: -rand_speed, y: fixing_speed}, size: ball_size});
+                }else if(ball_position == 2){
+                    slow_enemy_ball.push({pos : {x: rand2(800), y: 815}, speed: {x: -fixing_speed, y: -rand_speed}, size: ball_size});
+                }else if(ball_position == 3){
+                    slow_enemy_ball.push({pos : {x: -15, y: rand2(800)}, speed: {x: rand_speed, y: -fixing_speed}, size: ball_size});
+                }
+            }
+
+            if(slow_enemy_spawncycle > 0){
+                slow_enemy_spawncycle--;
+            }
+        }
+
+        function draw_rect(param) {
+            var x = param.x;
+            var y = param.y;
+            var width = param.width;
+            var height = param.height;
+            var radius = param.radius || 0;
+            var color = param.color;
+            
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.arc(x + width - radius, y + radius, radius, Math.PI * 1.5, 0, false);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.arc(x + width - radius, y + height - radius, radius, 0, Math.PI * 0.5, false);
+            ctx.lineTo(x + radius, y + height);
+            ctx.arc(x + radius, y + height - radius, radius, Math.PI * 0.5, Math.PI, false);
+            ctx.lineTo(x, y + radius);
+            ctx.arc(x + radius, y + radius, radius, Math.PI, Math.PI * 1.5, false);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function is_rect_in_mouse(param, mouse_xy) {
+            var x = param.x;
+            var y = param.y;
+            var width = param.width;
+            var height = param.height;
+            var radius = param.radius || 0;
+            var m = mouse_xy;
+            var ans = false;
+            
+            ans = ans || (x < m.x && m.x < x + width && y + radius < m.y && m.y < y + height - radius);
+            ans = ans || (y < m.y && m.y < y + height && x + radius < m.x && m.x < x + width - radius);
+            ans = ans || (distance(x + radius - m.x, y + radius, m.y) < radius);
+            ans = ans || (distance(x + radius - m.x, y + height - radius, m.y) < radius);
+            ans = ans || (distance(x + width - radius - m.x, y + radius, m.y) < radius);
+            ans = ans || (distance(x + width - radius, y + height - radius, m.y) < radius);
+            return ans;
+        }
+
+        $(document).on("click", function(e){
+            if(is_gaming && time > 3){
+                var mouse_position = mouse(e);
+                var force_vector_length = distance(ball.pos.x - mouse_position.x, ball.pos.y - mouse_position.y);
+                ball.speed.x = (ball.pos.x - mouse_position.x) / force_vector_length * sqrt(40);
+                ball.speed.y = (ball.pos.y - mouse_position.y) / force_vector_length * sqrt(40);
+            }
+        });
+
+        function at(array, number){
+            return array[number];
+        }
+
+        $("canvas").on("mousemove", function (evt) {
+            if(is_mouse_on_start_button){
+                is_mouse_on_start_button = is_rect_in_mouse(start_button_param[1], mouse(evt));
+            }else{
+                is_mouse_on_start_button = is_rect_in_mouse(start_button_param[0], mouse(evt));
+            }
+
+            if(is_mouse_on_back_button){
+                is_mouse_on_back_button = is_rect_in_mouse(back_button_param[1], mouse(evt));
+            }else{
+                is_mouse_on_back_button = is_rect_in_mouse(back_button_param[0], mouse(evt));
+            }
+
+            if(is_mouse_on_rule_button){
+                is_mouse_on_rule_button = is_rect_in_mouse(rule_button_param[1], mouse(evt));
+            }else{
+                is_mouse_on_rule_button = is_rect_in_mouse(rule_button_param[0], mouse(evt));
+            }
+
+            if(is_mouse_on_back_from_rule_button){
+                is_mouse_on_back_from_rule_button = is_rect_in_mouse(back_from_rule_button_param[1], mouse(evt));
+            }else{
+                is_mouse_on_back_from_rule_button = is_rect_in_mouse(back_from_rule_button_param[0], mouse(evt));
+            }
+
+            if(is_mouse_on_back_from_gamemode_button){
+                is_mouse_on_back_from_gamemode_button = is_rect_in_mouse(back_from_gamemode_button_param[1], mouse(evt));
+            }else{
+                is_mouse_on_back_from_gamemode_button = is_rect_in_mouse(back_from_gamemode_button_param[0], mouse(evt));
+            }
+
+            choosing_gamemode_button = 0;
+
+            if(choosing_gamemode_button == 1){
+                if(is_rect_in_mouse(gamemode_button_param[0][1], mouse(evt))){
+                    choosing_gamemode_button = 1;
+                }
+            }else{
+                if(is_rect_in_mouse(gamemode_button_param[0][0], mouse(evt))){
+                    choosing_gamemode_button = 1;
+                }
+            }
+
+            if(choosing_gamemode_button == 2){
+                if(is_rect_in_mouse(gamemode_button_param[1][1], mouse(evt))){
+                    choosing_gamemode_button = 2;
+                }
+            }else{
+                if(is_rect_in_mouse(gamemode_button_param[1][0], mouse(evt))){
+                    choosing_gamemode_button = 2;
+                }
+            }
+
+            if(choosing_gamemode_button == 3){
+                if(is_rect_in_mouse(gamemode_button_param[2][1], mouse(evt))){
+                    choosing_gamemode_button = 3;
+                }
+            }else{
+                if(is_rect_in_mouse(gamemode_button_param[2][0], mouse(evt))){
+                    choosing_gamemode_button = 3;
+                }
+            }
+
+            if(choosing_gamemode_button == 4){
+                if(is_rect_in_mouse(gamemode_button_param[3][1], mouse(evt))){
+                    choosing_gamemode_button = 4;
+                }
+            }else{
+                if(is_rect_in_mouse(gamemode_button_param[3][0], mouse(evt))){
+                    choosing_gamemode_button = 4;
+                }
+            }
+        });
+
+        $("canvas").on("click", function (evt) {
+            if(is_mouse_on_start_button && is_start_scene && !is_gaming){
+                is_start_scene = false;
+            }else if(is_mouse_on_rule_button && is_start_scene && !is_gaming){
+                is_start_scene = false;
+                is_rule_scene = true;
+            }else if(is_mouse_on_back_from_rule_button && is_rule_scene){
+                is_start_scene = true;
+                is_rule_scene = false;
+            }else if(choosing_gamemode_button == 1 && !is_gaming && !is_start_scene){
+                gamemode = 1;
+                initialize();
+            }else if(choosing_gamemode_button == 2 && !is_gaming && !is_start_scene){
+                gamemode = 2;
+                initialize();
+            }else if(choosing_gamemode_button == 3 && !is_gaming && !is_start_scene){
+                gamemode = 3;
+                initialize();
+            }else if(choosing_gamemode_button == 4 && !is_gaming && !is_start_scene){
+                gamemode = 4;
+                initialize();
+            }else if(is_mouse_on_back_from_gamemode_button && !is_gaming && !is_start_scene){
+                is_start_scene = true;
+                is_rule_scene = false;
+            }else if(is_mouse_on_back_button && gameover_phase > 120){
+                is_start_scene = true;
+                is_gaming = false;
+            }
+        });
+
+  		function mouse(evt) {
+    		return {
+      			x: floor((evt.clientX - $("canvas").offset().left) / 500 * 800),
+      			y: floor((evt.clientY - $("canvas").offset().top) / 500 * 800)
+    		};
+  		}
+    </script>
+</body>
+</html>

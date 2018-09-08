@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Rhythm Circle</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="animate.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+</head>
+<body style="background-color: #bfb; margin: 0;">
+    <canvas></canvas>
+    <div style="position: absolute; top: 0; width: 100%; height: 100%; background-color: #858687; display: none;" id="bounce_div">
+        <div style="height: 50px;"></div>
+        <p style="font-size: 60px; color: white; display: none;" id="gameover_text">GAME OVER!</p>
+        <div style="height: 50px;"></div>
+        <p style="font-size: 50px; color: white; display: none;" id="gameover_scoreboard">Score : </p>
+        <a href="start.html" style="position: absolute;; font-size: 50px; color: white; display: none; left: 0; right: 0; bottom: 50px; margin: auto;" id="back_to_start">Back</a>
+    </div>
+    <script>
+        var canvas = $("canvas");
+        canvas.attr("width", window_width);
+        canvas.attr("height", window_height);
+
+        var c = canvas[0].getContext("2d");
+
+        var rotate_loop = setInterval(function(){
+            rotate();
+        }, 16);
+
+        var speed = 3;
+        var speed_array = [18, 18, 18, 18, 18, 15, 15, 15, 15, 15, 12, 12, 12, 12, 12, 12, 9, 9, 9, 6, 6, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3];
+
+        function rotate(){
+            if(is_gaming){
+                ball_deg += speed;
+                redraw();
+            }
+        }
+
+        var center_text = "", center_text_color = "#3930e3", center_text_size = 40, ball_deg = 0, trace_color = "#3930e3", score = 0, time = 40;
+        var trace = {alpha : 0.0, deg : 0};
+        var trace_time = 40;
+        var ball_alpha, text_alpha = 0.0;
+        var is_balling = true, is_gaming = true;
+        var trace_x = 0, trace_y = 0, fragment_alpha = 0.0;
+
+        function position_x_deg(deg){
+            return width_to_px(circle_x) - 200 * cos_deg(deg);
+        }
+
+        function position_y_deg(deg){
+            return height_to_px(circle_y) - 200 * sin_deg(deg)
+        }
+
+        function set_arc(x, y, l, r){
+            c.arc(x, y, 200, to_radian(l + 180), to_radian(r + 180), false);
+        }
+
+        function draw_arc(x, y, l, r, color, size){
+            c.lineWidth = size;
+            c.strokeStyle = color;
+            c.beginPath();
+            set_arc(x, y, l, r);
+            c.stroke();
+        }
+
+        var circle_x = 50, circle_y = 50;
+        //var circle_x = rand2(100 - to_percent_w(500)) + to_percent_w(250), circle_y = rand2(100 - to_percent_h(500)) + to_percent_h(250);
+        console.log(circle_x);
+        console.log(circle_y);
+
+        function redraw(){
+            c.clearRect(0, 0, canvas[0].width, canvas[0].height);
+
+            draw_arc(width_to_px(circle_x), height_to_px(circle_y), 90, 180 - 10 * speed / 3, "#e55f5f", 8);
+            draw_arc(width_to_px(circle_x), height_to_px(circle_y), 180 - 10 * speed / 3, 180 + 10 * speed / 3, "#00ffff", 8);
+            draw_arc(width_to_px(circle_x), height_to_px(circle_y), 180 + 10 * speed / 3, 270, "#e55f5f", 8);
+
+            var grad = c.createLinearGradient(width_to_px(circle_x) - 200 * cos_deg(30), 0, width_to_px(circle_x), 0);
+            c.lineWidth = 8;
+            grad.addColorStop(0, "#e55f5f00");
+            grad.addColorStop(1, "#e55f5fff");
+            c.strokeStyle = grad;
+            c.beginPath();
+            set_arc(width_to_px(circle_x), height_to_px(circle_y), 30, 90);
+            c.stroke();
+            c.beginPath();
+            set_arc(width_to_px(circle_x), height_to_px(circle_y), -90, -30);
+            c.stroke();
+
+            if(ball_deg % 360 < 30 || 330 < ball_deg % 360 || !is_balling){
+                ball_alpha = 0.0;
+            }else if(270 < ball_deg % 360){
+                ball_alpha = (330 - ball_deg % 360) / 60;
+            }else if(ball_deg % 360 < 90){
+                ball_alpha = (ball_deg % 360 - 30) / 60;
+            }else{
+                ball_alpha = 1.0;
+            }
+            var ball_color = "#3930e3";
+            c.strokeStyle = ball_color + to_hex(Math.floor(ball_alpha * 255)); 
+            c.fillStyle = ball_color + to_hex(Math.floor(ball_alpha * 255));
+            var ball_x = position_x_deg(ball_deg);
+            var ball_y = position_y_deg(ball_deg);
+            c.beginPath();
+            c.arc(ball_x, ball_y, 8, to_radian(0), to_radian(360), true);
+            c.fill();
+
+            c.beginPath();
+            if(!is_balling && fragment_alpha > 0){
+                var pixel = c.createImageData(4, 4);
+                for(var i = 0; i < 16; i++){
+                    pixel.data[i * 4 + 0] = hex_to_rgb(trace_color)[0];
+                    pixel.data[i * 4 + 1] = hex_to_rgb(trace_color)[1];
+                    pixel.data[i * 4 + 2] = hex_to_rgb(trace_color)[2];
+                    pixel.data[i * 4 + 3] = Math.floor(fragment_alpha * 0xFF);
+                }
+                c.putImageData(pixel, trace_x, trace_y - (12 + (1 - fragment_alpha) * 48));
+                c.putImageData(pixel, trace_x + (12 + (1 - fragment_alpha) * 48), trace_y);
+                c.putImageData(pixel, trace_x, trace_y + (12 + (1 - fragment_alpha) * 48));
+                c.putImageData(pixel, trace_x - (12 + (1 - fragment_alpha) * 48), trace_y);
+                fragment_alpha = Math.max(0, fragment_alpha - 1 / trace_time);
+            }
+
+            c.strokeStyle = center_text_color + to_hex(Math.floor(text_alpha * 255));
+            c.fillStyle = center_text_color + to_hex(Math.floor(text_alpha * 255));
+            c.font = center_text_size + "px Lucida Grande";
+            c.textAlign = "center";
+            c.textBaseline = "middle";
+            $("#hidden_font").css("font-size", center_text_size + "px");
+            $("#hidden_font").html(center_text);
+            c.beginPath();
+            c.fillText(center_text, width_to_px(circle_x), height_to_px(circle_y));
+            c.stroke();
+            if(text_alpha > 0){
+                text_alpha = Math.max(0, text_alpha - 1 / 60);
+            }
+
+            c.strokeStyle = "#d384eb";
+            c.fillStyle = "#d384eb";
+            c.font = "45px Lucida Grande";
+            c.textAlign = "right";
+            c.beginPath();
+            c.fillText("Score", 300, height_to_px(50) - 30);
+            c.stroke();
+            c.beginPath();
+            c.fillText(score, 300, height_to_px(50) + 30);
+            c.stroke();
+
+            c.strokeStyle = "#162df1";
+            c.fillStyle = "#162df1";
+            c.font = "45px Lucida Grande";
+            c.textAlign = "left";
+            c.beginPath();
+            c.fillText("Time", window_width - 300, height_to_px(50) - 30);
+            c.stroke();
+            c.beginPath();
+            c.fillText(time, window_width - 300, height_to_px(50) + 30);
+            c.stroke();
+
+            c.strokeStyle = trace_color + to_hex(Math.floor(trace.alpha * 255));
+            c.fillStyle = trace_color + to_hex(Math.floor(trace.alpha * 255));
+            c.beginPath();
+            c.arc(position_x_deg(trace.deg), position_y_deg(trace.deg), 8, to_radian(0), to_radian(360), true);
+            c.fill();
+            trace.alpha = Math.max(0, trace.alpha - 1 / trace_time);
+            console.log(trace.alpha);
+
+            if(ball_deg % 360 == 0){
+                time--;
+                if(time <= 0){
+                    is_gaming = false;
+                    $("#bounce_div").addClass("animated bounceInDown");
+                    $("#gameover_scoreboard").html("Score : " + score + '<span style="font-size: 30px;"> /1800</span>');
+                    $("#bounce_div").css("display", "inline");
+                    setTimeout(function(){
+                        $("#gameover_text").css("display", "block");
+                    }, 1500);
+                    setTimeout(function(){
+                        $("#gameover_scoreboard").css("display", "block");
+                    }, 2500);
+                    setTimeout(function(){
+                        $("#back_to_start").css("display", "block");
+                    }, 3500);
+                }else{
+                    speed = speed_array[time - 1];
+                }
+                is_balling = true;
+              //  circle_x = rand2(100 - to_percent_w(500)) + to_percent_w(250);
+              //  circle_y = rand2(100 - to_percent_h(500)) + to_percent_h(250);
+            }
+        }
+
+        document.onkeydown = function(e){
+            if(e.keyCode != 32 || Math.abs(ball_deg % 360 - 180) > 90 || !is_balling){
+                return;
+            }
+            trace = {alpha : ball_alpha, deg : ball_deg};
+            if(ball_deg % 360 == 180){
+                center_text = "JUST";
+                center_text_color = "#f62f53";
+                trace_color = "#f62f53";
+                score += 45;
+                center_text_size = 100;
+            }else if(Math.abs(ball_deg % 360 - 180) < 10 * speed / 3){
+                center_text = "OK";
+                center_text_color = "#ea6181";
+                trace_color = "#ea6181";
+                score += 30;
+                center_text_size = 40;
+            }else{
+                center_text = "MISS";
+                center_text_color = "#3930e3";
+                trace_color = "#3930e3";
+                center_text_size = 40;
+            }
+            text_alpha = 1.0;
+            is_balling = false;
+            fragment_alpha = 1.0;
+            trace_x = position_x_deg(ball_deg);
+            trace_y = position_y_deg(ball_deg);
+        };
+    </script>
+</body>
+</html>

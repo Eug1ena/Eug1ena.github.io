@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>- - - - - - - o</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="animate.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+</head>
+<body style="background-color: #bfb; margin: 0;">
+    <table style="margin: 0 auto; margin-top: 10px; border-spacing: 1px 3px;"></table>
+    <div style="position: absolute; top: 0; width: 100%; height: 100%; background-color: #858687; display: none;" id="bounce_div">
+        <div style="height: 50px;"></div>
+        <p style="font-size: 60px; color: white; display: none;" id="gameover_text">GAME OVER!</p>
+        <div style="height: 50px;"></div>
+        <p style="font-size: 50px; color: white; display: none;" id="gameover_scoreboard">Score : </p>
+        <a href="start.html" style="position: absolute;; font-size: 50px; color: white; display: none; left: 0; right: 0; bottom: 50px; margin: auto;" id="back_to_start">Back</a>
+    </div>
+    <script>
+        var table = $("table");
+        var mass = [];
+        for(var i = 0; i < 20; i++){
+            var tr = $("<tr>");
+            mass.push([]);
+            for(var j = 0; j < 40; j++){
+                var td = $("<td>");
+                td.css("height", "20px");
+                td.css("width", "20px");
+                td.css("border", "solid 1px #38d");
+                tr.append(td);
+                mass[i].push(td);
+            }
+            table.append(tr);
+        }
+
+        var now_x = 0, now_y = 0;
+        var is_stop = false;
+
+        var tick_loop = setInterval(function(){
+            tick();
+        }, 128);
+
+        function tick(){
+            if(!is_stop){
+                mass[0][now_y].css("background", "none");
+                now_y++;
+                mass[0][now_y].css("background-color", "#f77");
+            }
+        }
+
+        document.onkeydown = function(e){
+            if(e.keyCode != 32){
+                return;
+            }
+            is_stop = true;
+        };
+    </script>
+</body>
+</html>

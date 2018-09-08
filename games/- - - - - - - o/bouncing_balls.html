@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Bouncing Balls</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="animate.css">
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+</head>
+<body style="background-color: #bfb; margin: 0;">
+    <canvas></canvas><!--
+    <div style="position: absolute; top: 0; width: 100%; height: 100%; background-color: #858687; display: none;" id="bounce_div">
+        <div style="height: 50px;"></div>
+        <p style="font-size: 60px; color: white; display: none;" id="gameover_text">GAME OVER!</p>
+        <div style="height: 50px;"></div>
+        <p style="font-size: 50px; color: white; display: none;" id="gameover_scoreboard">Score : </p>
+        <a href="start.html" style="position: absolute;; font-size: 50px; color: white; display: none; left: 0; right: 0; bottom: 50px; margin: auto;" id="back_to_start">Back</a>
+    </div>-->
+    <script>
+        var canvas = $("canvas");
+
+        canvas.attr("width", 810);
+        canvas.attr("height", 500);
+        canvas.css("display", "inline");
+        canvas.css("position", "absolute");
+        canvas.css("width", 810);
+        canvas.css("height", 500);
+        canvas.css("top", 0);
+        canvas.css("left", 0);
+        canvas.css("right", 0);
+        canvas.css("bottom", 0);
+        canvas.css("margin", "auto");
+        canvas.css("border", "solid 5px #aaa");
+
+        var c = canvas[0].getContext("2d");
+
+        var rotate_loop = setInterval(function(){
+           	redraw();
+        }, 16);
+
+        function draw_ball(x, y, color, size){
+            c.strokeStyle = color;
+            c.fillStyle = color;
+            c.beginPath();
+            c.arc(x, y, size, 0, 2 * pi, true);
+            c.fill();
+        }
+
+        var bar_time = [-8, -8, -8, -8];
+        var ball_cooldown = [0, 0, 0, 0];
+        var balls = [];
+
+        function redraw(){
+            c.clearRect(0, 0, canvas[0].width, canvas[0].height);
+
+            c.beginPath();
+            c.fillStyle = "#fed";
+            c.fillRect(0, 0, canvas[0].width, canvas[0].height);
+
+            c.beginPath();
+            for(var i = 0; i < 4; i++){
+            	/*var depth = max(0, bar_time[i] - 16);
+            	c.fillStyle = "rgb(" + 
+            		solution(204, 255, 48 - depth, depth) + ", " + 
+            		solution(204, 170, 48 - depth, depth) + ", " + 
+            		solution(204, 170, 48 - depth, depth) + ")";
+        	    if(bar_time[i] > 0){
+            		bar_time[i]--;
+            	}*/
+            	c.fillStyle = "#ccc";
+            	c.fillRect(i * 200 + 10, 0, 190, 405);
+            	c.fillStyle = "#bbf";
+            	c.fillRect(i * 200 + 10, 405, 190, 500);
+            	if(bar_time[i] <= 0){
+            		c.fillStyle = "#faa";
+            		c.fillRect(i * 200 + 10, 405 + 95 / 8 * -bar_time[i], 190, 500);
+            	}else{
+            		c.fillStyle = "#faa";
+	            	c.fillRect(i * 200 + 10, 405 + 95 / 16 * bar_time[i], 190, 500);
+            		c.fillStyle = "#777";
+	        		c.fillRect(i * 200 + 20, 400, 170, 10);
+            	}
+            	if(bar_time[i] > -8){
+            		bar_time[i]--;
+            	}
+        	}
+
+        	if(rand(8) == 0){
+        		balls.push({
+        			bar: rand(4), 
+        			position: rand(50) - 25, 
+        			slope: rand(500) - 250, 
+        			speed: rand(7),
+        			tick: 0,
+        			is_bounced: false
+        		});
+        		if(ball_cooldown[balls[balls.length - 1].bar] > 0){
+        			balls.pop();
+        		}else{
+        			ball_cooldown[balls[balls.length - 1].bar] = 32;
+        		}
+        	}
+        	for(var i = 0; i < 4; i++){
+        		if(ball_cooldown[i] > 0){
+        			ball_cooldown[i]--;
+        		}
+        	}
+        	console.log(ball_cooldown);
+        	for(var i = 0; i < balls.length; i++){
+        		var calc_top = balls[i].tick * balls[i].tick * ((25 - balls[i].speed * 4) / 256) + balls[i].tick * balls[i].speed;
+        		if(balls[i].is_bounced){
+        			draw_ball(balls[i].bar * 200 + 105 + balls[i].position + balls[i].slope / 64 * (64 - balls[i].tick), 800 - calc_top, "#f00", 10);
+        		}else{
+        			draw_ball(balls[i].bar * 200 + 105 + balls[i].position + balls[i].slope / 64 * (64 - balls[i].tick), calc_top, "#f00", 10);
+        		}
+        		if(395 < calc_top && calc_top < 405 && bar_time[balls[i].bar] > 0){
+        			balls[i].is_bounced = true;
+        		}
+				balls[i].tick++;
+        	}
+        }
+
+        var key = [68, 70, 74, 75];
+
+        document.onkeydown = function(e){
+            var key_number = -1;
+            for(var i = 0; i < 4; i++){
+                if(e.keyCode == key[i]){
+                    key_number = i;
+                    break;
+                }
+            }
+            if(key_number == -1 || bar_time[i] > -8){
+                return;
+            }
+            bar_time[key_number] = 16;
+        };
+    </script>
+</body>
+</html>
