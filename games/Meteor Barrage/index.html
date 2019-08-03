@@ -675,7 +675,7 @@
             }
         }
 
-        function draw_slow_enemy(blow_power){
+        function draw_slow_enemy(magnification){
             for(var i = 0; i < slow_enemy_ball.length; i++){
                 ctx.beginPath();
                 ctx.fillStyle = "#f98484";
@@ -691,8 +691,8 @@
                     cooldown = 10;
                 }
 
-                slow_enemy_ball[i].pos.x += slow_enemy_ball[i].speed.x * blow_power;
-                slow_enemy_ball[i].pos.y += slow_enemy_ball[i].speed.y * blow_power;
+                slow_enemy_ball[i].pos.x += slow_enemy_ball[i].speed.x * magnification;
+                slow_enemy_ball[i].pos.y += slow_enemy_ball[i].speed.y * magnification;
             }
 
             for(var i = slow_enemy_ball.length - 1; i >= 0; i--){

@@ -1,0 +1,29 @@
+body {
+	overflow: hidden;
+}
+
+hr {
+	position: absolute;
+}
+
+.center {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	display: inline-block;
+}
+
+h1, p, a, span {
+	text-align: center;
+	font-family: 'Lucida Grande';
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+a {
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}

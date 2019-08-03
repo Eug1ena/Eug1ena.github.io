@@ -3,19 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Rhythm Circle</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="animate.css">
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animate.css">
+    <script type="text/javascript" src="js/jquery 3.3.1.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
+    <!--[if IE]><script type="text/javascript" src="js/excanvas.js"></script><![endif]-->
 </head>
 <body style="background-color: #bfb; margin: 0;">
     <canvas></canvas>
     <div style="position: absolute; top: 0; width: 100%; height: 100%; background-color: #858687; display: none;" id="bounce_div">
-        <div style="height: 50px;"></div>
-        <p style="font-size: 60px; color: white; display: none;" id="gameover_text">GAME OVER!</p>
-        <div style="height: 50px;"></div>
-        <p style="font-size: 50px; color: white; display: none;" id="gameover_scoreboard">Score : </p>
-        <a href="" style="position: absolute;; font-size: 50px; color: white; display: none; left: 0; right: 0; bottom: 50px; margin: auto;" id="retry">Retry</a>
+        <p style="padding-top: 50px; font-size: 60px; color: white; display: none;" id="gameover_text">GAME OVER!</p>
+        <p style="padding-top: 50px; font-size: 50px; color: white; display: none;" id="gameover_scoreboard">Score : </p>
+        <p style="padding-top: 20px; font-size: 30px; color: #db4646; display: none;" id="gameover_just">JUST : -</p>
+        <p style="padding-top: 10px; font-size: 30px; color: #ed5175; display: none;" id="gameover_ok">OK : -</p>
+        <p style="padding-top: 10px; font-size: 30px; color: #3930e3; display: none;" id="gameover_miss">MISS : -</p>
+        <a href="" style="position: absolute; left: calc(50% - 160px); font-size: 50px; color: white; display: none; bottom: 80px;" id="retry">Retry</a>
+        <a href="start.html" style="position: absolute; right: calc(50% - 160px); font-size: 50px; color: white; display: none; bottom: 80px;" id="back_to_start">Back</a>
     </div>
     <script>
         var canvas = $("canvas");
@@ -153,7 +156,7 @@
             c.font = "45px Lucida Grande";
             c.textAlign = "left";
             c.beginPath();
-            c.fillText("Time", window_width - 300, height_to_px(50) - 30);
+            c.fillText("Balls", window_width - 300, height_to_px(50) - 30);
             c.stroke();
             c.beginPath();
             c.fillText(time, window_width - 300, height_to_px(50) + 30);
@@ -173,6 +176,9 @@
                     is_gaming = false;
                     $("#bounce_div").addClass("animated bounceInDown");
                     $("#gameover_scoreboard").html("Score : " + score + '<span style="font-size: 30px;"> /1800</span>');
+                    $("#gameover_just").html("JUST : " + just)
+                    $("#gameover_ok").html("OK : " + ok)
+                    $("#gameover_miss").html("MISS : " + (40 - just - ok))
                     $("#bounce_div").css("display", "inline");
                     setTimeout(function(){
                         $("#gameover_text").css("display", "block");
@@ -181,8 +187,14 @@
                         $("#gameover_scoreboard").css("display", "block");
                     }, 2500);
                     setTimeout(function(){
-                        $("#retry").css("display", "block");
+                        $("#gameover_just").css("display", "block");
+                        $("#gameover_ok").css("display", "block");
+                        $("#gameover_miss").css("display", "block");
                     }, 3500);
+                    setTimeout(function(){
+                        $("#back_to_start").css("display", "block");
+                        $("#retry").css("display", "block");
+                    }, 5000);
                 }else{
                     speed = speed_array[time - 1];
                 }
@@ -191,6 +203,8 @@
               //  circle_y = rand2(100 - to_percent_h(500)) + to_percent_h(250);
             }
         }
+
+        var just = 0, ok = 0;
 
         document.onkeydown = function(e){
             if(e.keyCode != 32 || Math.abs(ball_deg % 360 - 180) > 90 || !is_balling){
@@ -203,12 +217,14 @@
                 trace_color = "#f62f53";
                 score += 45;
                 center_text_size = 100;
+                just++;
             }else if(Math.abs(ball_deg % 360 - 180) < 10 * speed / 3){
                 center_text = "OK";
                 center_text_color = "#ea6181";
                 trace_color = "#ea6181";
                 score += 30;
                 center_text_size = 40;
+                ok++;
             }else{
                 center_text = "MISS";
                 center_text_color = "#3930e3";
